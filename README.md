@@ -68,7 +68,7 @@ Refer to the inline documentation in `prep_audio.py` for more details on the pro
 
 ## Utilities
 - Double-click `clear_input_folder.bat` to empty the `input\` folder between batches. The script only removes `.wav`, `.aif`, and `.aiff` files and any leftover sub-folders.
-=======
+
 # Backtrack-Remaster
 CLI tool for prepping WAV/AIFF to broadcast standards with loudness norm, true-peak limiting, dithering &amp; QC reports
 
