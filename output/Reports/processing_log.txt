@@ -1,0 +1,76 @@
+Starting batch process for folder: C:\Users\Dymaxion\Desktop\audio_prep_project\input
+Mode: Background Music Prep (-27 LUFS / -6 dBTP)
+[INFO] Processing: Calm Piano Riff with Orchestra.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -13.40999984741211 dBTP
+[INFO] Processing: Calm ambient piano.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -13.420000076293945 dBTP
+[INFO] Processing: Cinematic Atmospheric Piano.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -18.15999984741211 dBTP
+[INFO] Processing: Cinematic Piano Movie Music.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -14.220000267028809 dBTP
+[INFO] Processing: Cinematic Piano.wav
+  -> Status: PASS, Post LUFS: -26.99, Final Peak: -15.180000305175781 dBTP
+[INFO] Processing: Cinematic.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -13.770000457763672 dBTP
+[INFO] Processing: Deep Drone Dramatic.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -17.079999923706055 dBTP
+[INFO] Processing: Deep Subby Drone.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -15.899999618530273 dBTP
+[INFO] Processing: Dramatic Discovery Awe Piano.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -14.859999656677246 dBTP
+[INFO] Processing: Drone Drama.wav
+  -> Status: PASS, Post LUFS: -26.99, Final Peak: -12.75 dBTP
+[INFO] Processing: Emotional Stinger.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -13.380000114440918 dBTP
+[INFO] Processing: Emotional Underscores {Beds} Loopable.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -15.029999732971191 dBTP
+[INFO] Processing: Fast-Pace Dramatic Piano.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -15.020000457763672 dBTP
+[INFO] Processing: Fast-Paced Dramatic Piano.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -14.84000015258789 dBTP
+[INFO] Processing: Flute Loopable Underscores {Beds}.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -15.979999542236328 dBTP
+[INFO] Processing: Intro {serious piano}.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -13.720000267028809 dBTP
+[INFO] Processing: Intro.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -14.869999885559082 dBTP
+[INFO] Processing: Low To High Drone.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -12.420000076293945 dBTP
+[INFO] Processing: Lows To Triumph.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -15.0600004196167 dBTP
+[INFO] Processing: Medium-Fast Paced Strings and Piano.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -17.290000915527344 dBTP
+[INFO] Processing: Mid-Fast Pacing Piano.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -13.130000114440918 dBTP
+[INFO] Processing: Piano Mystery Violin.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -15.710000038146973 dBTP
+[INFO] Processing: Piano Underscores Bed {Loop}.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -14.020000457763672 dBTP
+[INFO] Processing: Segments 2.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -14.520000457763672 dBTP
+[INFO] Processing: Segments 3.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -15.130000114440918 dBTP
+[INFO] Processing: Segments.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -14.720000267028809 dBTP
+[INFO] Processing: Slow-paced violin.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -14.479999542236328 dBTP
+[INFO] Processing: Slower-mid Pretty Pacing Piano.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -11.899999618530273 dBTP
+[INFO] Processing: Spooky Stakes Piano.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -13.260000228881836 dBTP
+[INFO] Processing: Upbeat Fast Piano.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -14.130000114440918 dBTP
+[INFO] Processing: Upbeat Piano.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -13.039999961853027 dBTP
+[INFO] Processing: beach.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -15.4399995803833 dBTP
+[INFO] Processing: chill 2.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -16.690000534057617 dBTP
+[INFO] Processing: chill.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -15.279999732971191 dBTP
+[INFO] Processing: epic legacy theme.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -14.020000457763672 dBTP
+[INFO] Processing: humble reflection.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -13.989999771118164 dBTP
+[INFO] Processing: violin synth.wav
+  -> Status: PASS, Post LUFS: -27.0, Final Peak: -15.869999885559082 dBTP
