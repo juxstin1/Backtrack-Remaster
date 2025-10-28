@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Broadcast Audio Prep Tool
 
 This project provides a command-line tool for preparing WAV or AIFF audio files for broadcast use. It supports two standard delivery modes:
@@ -35,7 +35,6 @@ The script applies ITU-R BS.1770 loudness normalisation, resamples to 48 kHz usi
    ```bash
    python prep_audio.py
    ```
-
    With no extra flags the script reads from `input\` and writes masters to `output\`. A `Reports` subdirectory is created in `output\` containing `qc_report.csv`, `summary_report.html`, and `processing_log.txt`.
 
 3. **Optional flags:**
@@ -65,13 +64,11 @@ The dither noise generator is seeded from each filename, ensuring that running t
 Yes. The script processes files with any channel count and reports the channel count in the CSV/HTML reports. It does not downmix; each channel is left untouched aside from gain adjustments.
 
 ## Support
-
 Refer to the inline documentation in `prep_audio.py` for more details on the processing stages and configuration options.
 
 ## Utilities
-
 - Double-click `clear_input_folder.bat` to empty the `input\` folder between batches. The script only removes `.wav`, `.aif`, and `.aiff` files and any leftover sub-folders.
 =======
 # Backtrack-Remaster
 CLI tool for prepping WAV/AIFF to broadcast standards with loudness norm, true-peak limiting, dithering &amp; QC reports
->>>>>>> f24197b147a6bf857d9397de5bb55888cc0ade49
+
