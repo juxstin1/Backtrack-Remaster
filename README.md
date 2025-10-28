@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Broadcast Audio Prep Tool
 
 This project provides a command-line tool for preparing WAV or AIFF audio files for broadcast use. It supports two standard delivery modes:
@@ -70,3 +71,7 @@ Refer to the inline documentation in `prep_audio.py` for more details on the pro
 ## Utilities
 
 - Double-click `clear_input_folder.bat` to empty the `input\` folder between batches. The script only removes `.wav`, `.aif`, and `.aiff` files and any leftover sub-folders.
+=======
+# Backtrack-Remaster
+CLI tool for prepping WAV/AIFF to broadcast standards with loudness norm, true-peak limiting, dithering &amp; QC reports
+>>>>>>> f24197b147a6bf857d9397de5bb55888cc0ade49
