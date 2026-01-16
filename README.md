@@ -1,5 +1,9 @@
-
 # Broadcast Audio Prep Tool
+
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
+[![CI](https://github.com/juxstin1/Backtrack-Remaster/actions/workflows/ci.yml/badge.svg)](https://github.com/juxstin1/Backtrack-Remaster/actions/workflows/ci.yml)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 This project provides a command-line tool for preparing WAV or AIFF audio files for broadcast use. It supports two standard delivery modes:
 
@@ -67,8 +71,9 @@ Yes. The script processes files with any channel count and reports the channel c
 Refer to the inline documentation in `prep_audio.py` for more details on the processing stages and configuration options.
 
 ## Utilities
+
 - Double-click `clear_input_folder.bat` to empty the `input\` folder between batches. The script only removes `.wav`, `.aif`, and `.aiff` files and any leftover sub-folders.
 
-# Backtrack-Remaster
-CLI tool for prepping WAV/AIFF to broadcast standards with loudness norm, true-peak limiting, dithering &amp; QC reports
+## License
 
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
