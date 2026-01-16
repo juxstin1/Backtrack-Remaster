@@ -21,6 +21,7 @@ import pandas as pd
 import pyloudnorm as pyln
 import soundfile as sf
 from scipy.signal import resample_poly
+from tqdm import tqdm
 
 
 # ---------------------------------------------------------------------------
@@ -236,7 +237,7 @@ def process_directory(args: argparse.Namespace) -> None:
         f"Mode: {mode_config['DESC']}",
     ]
 
-    for file_path in input_files:
+    for file_path in tqdm(input_files, desc="Processing", unit="file"):
         basename = os.path.basename(file_path)
         log_lines.append(f"[INFO] Processing: {basename}")
         try:
