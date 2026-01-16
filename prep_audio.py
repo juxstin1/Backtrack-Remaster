@@ -231,20 +231,31 @@ th {{ background-color: #f2f2f2; }}
         )
 
 
-def iter_audio_files(input_dir: str) -> Iterable[str]:
-    """Yield audio files from the input directory (non-recursive)."""
+def iter_audio_files(input_dir: str, recursive: bool = False) -> Iterable[str]:
+    """Yield audio files from the input directory.
 
-    with os.scandir(input_dir) as it:
-        for entry in it:
-            if entry.is_file() and entry.name.lower().endswith(VALID_EXTENSIONS):
-                yield entry.path
+    Args:
+        input_dir: Path to the directory to scan.
+        recursive: If True, scan subdirectories recursively.
+    """
+    if recursive:
+        for root, _, files in os.walk(input_dir):
+            for filename in files:
+                if filename.lower().endswith(VALID_EXTENSIONS):
+                    yield os.path.join(root, filename)
+    else:
+        with os.scandir(input_dir) as it:
+            for entry in it:
+                if entry.is_file() and entry.name.lower().endswith(VALID_EXTENSIONS):
+                    yield entry.path
 
 
 def process_directory(args: argparse.Namespace) -> None:
     """Process all audio files inside the given directory."""
 
     mode_config = MODES[args.mode]
-    input_files = sorted(iter_audio_files(args.input))
+    recursive = getattr(args, "recursive", False)
+    input_files = sorted(iter_audio_files(args.input, recursive=recursive))
     if not input_files:
         raise RuntimeError(f"No WAV or AIFF files found in '{args.input}'.")
 
@@ -390,6 +401,11 @@ def main() -> None:
         "-q", "--quiet",
         action="store_true",
         help="Suppress non-essential output.",
+    )
+    parser.add_argument(
+        "-r", "--recursive",
+        action="store_true",
+        help="Scan input directory recursively for audio files.",
     )
 
     args = parser.parse_args()
