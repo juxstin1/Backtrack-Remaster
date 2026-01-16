@@ -1,12 +1,14 @@
 """
-Broadcast Audio Prep Tool (v5.0)
-================================
+Broadcast Audio Prep Tool
+=========================
 
 This script prepares WAV/AIFF audio files for broadcast use.  It supports
 two modes of operation and now works directly on an input folder instead of
 expecting a ZIP archive.  Processed masters are written to an output folder
 alongside QC reports.
 """
+
+__version__ = "5.1.0"
 
 import argparse
 import datetime
@@ -300,6 +302,11 @@ def main() -> None:
     """Parse arguments and kick off directory processing."""
 
     parser = argparse.ArgumentParser(description="Prepare audio files for broadcast use.")
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
+    )
     parser.add_argument(
         "--input",
         default=DEFAULT_INPUT_DIR,
