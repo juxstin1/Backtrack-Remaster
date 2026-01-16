@@ -15,8 +15,9 @@ import datetime
 import json
 import logging
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from html import escape
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -251,6 +252,72 @@ def iter_audio_files(input_dir: str, recursive: bool = False) -> Iterable[str]:
                     yield entry.path
 
 
+def _process_file_task(
+    file_path: str,
+    mode_config: Dict[str, float],
+    output_dir: str,
+    suffix_mode: bool,
+    mode_name: str,
+    dry_run: bool,
+) -> Tuple[Optional[Dict[str, object]], List[str]]:
+    """Process a single file (for parallel execution).
+
+    Returns:
+        Tuple of (report dict or None, list of log lines)
+    """
+    basename = os.path.basename(file_path)
+    log_lines = [f"[INFO] Processing: {basename}"]
+
+    try:
+        processed, sr, report = process_one_file(file_path, mode_config)
+
+        base, ext = os.path.splitext(basename)
+        safe_base = "".join(ch if ch.isalnum() or ch in "._- " else "_" for ch in base)
+        if suffix_mode:
+            suffix = (
+                f"__{mode_name}__-"
+                f"{abs(int(mode_config['TARGET_LKFS']))}LUFS_-"
+                f"{abs(int(mode_config['TP_LIMIT']))}dBTP"
+            )
+            out_filename = f"{safe_base}{suffix}{ext}"
+        else:
+            out_filename = f"prepped_{safe_base}{ext}"
+
+        out_path = os.path.join(output_dir, out_filename)
+
+        if dry_run:
+            log_lines.append(f"  -> [DRY RUN] Would write to: {out_filename}")
+            log_lines.append(
+                f"  -> Status: {report['status']}, Post LUFS: {report['post_lufs']}, Peak: {report['post_tp_db']} dBTP"
+            )
+        else:
+            seed = abs(hash(basename)) % (2**32)
+            write_wav_24bit_tpdf(out_path, processed, sr, seed)
+
+            fixed, before_tp, after_tp = enforce_tp_after_write(out_path, mode_config["TP_LIMIT"])
+            if fixed:
+                log_lines.append(
+                    f"  -> [FIXED] Post-write peak was {before_tp:.2f} dBTP; corrected to {after_tp:.2f} dBTP."
+                )
+                report["status"] = "WARN (Peak Corrected)"
+                report["post_tp_db"] = round(after_tp, 2)
+            else:
+                report["post_tp_db"] = round(after_tp, 2)
+
+            log_lines.append(
+                f"  -> Status: {report['status']}, Post LUFS: {report['post_lufs']}, Final Peak: {report['post_tp_db']} dBTP"
+            )
+
+        return report, log_lines
+
+    except ValueError as exc:
+        log_lines.append(f"[SKIP] Skipped {basename}: {exc}")
+        return None, log_lines
+    except Exception as exc:  # pragma: no cover - defensive
+        log_lines.append(f"[ERROR] Failed to process {basename}: {exc}")
+        return None, log_lines
+
+
 def process_directory(args: argparse.Namespace) -> None:
     """Process all audio files inside the given directory."""
 
@@ -261,6 +328,8 @@ def process_directory(args: argparse.Namespace) -> None:
         raise RuntimeError(f"No WAV or AIFF files found in '{args.input}'.")
 
     dry_run = getattr(args, "dry_run", False)
+    num_jobs = getattr(args, "jobs", 1)
+
     if dry_run:
         print("[DRY RUN] Preview mode - no files will be written.\n")
         reports_dir = None
@@ -275,58 +344,42 @@ def process_directory(args: argparse.Namespace) -> None:
         f"Mode: {mode_config['DESC']}",
     ]
 
-    for file_path in tqdm(input_files, desc="Processing", unit="file"):
-        basename = os.path.basename(file_path)
-        log_lines.append(f"[INFO] Processing: {basename}")
-        try:
+    if num_jobs > 1:
+        log_lines.append(f"Parallel processing with {num_jobs} workers")
 
-            processed, sr, report = process_one_file(file_path, mode_config)
-
-            base, ext = os.path.splitext(basename)
-            safe_base = "".join(ch if ch.isalnum() or ch in "._- " else "_" for ch in base)
-            if args.suffix:
-                suffix = (
-                    f"__{args.mode}__-"
-                    f"{abs(int(mode_config['TARGET_LKFS']))}LUFS_-"
-                    f"{abs(int(mode_config['TP_LIMIT']))}dBTP"
-                )
-                out_filename = f"{safe_base}{suffix}{ext}"
-            else:
-                out_filename = f"prepped_{safe_base}{ext}"
-
-            out_path = os.path.join(args.output, out_filename)
-
-            if getattr(args, "dry_run", False):
-                # Dry run: show what would happen without writing
+    # Process files (parallel or sequential)
+    if num_jobs > 1:
+        with ThreadPoolExecutor(max_workers=num_jobs) as executor:
+            futures = {
+                executor.submit(
+                    _process_file_task,
+                    fp,
+                    mode_config,
+                    args.output,
+                    args.suffix,
+                    args.mode,
+                    dry_run,
+                ): fp
+                for fp in input_files
+            }
+            for future in tqdm(as_completed(futures), total=len(futures), desc="Processing", unit="file"):
+                report, file_logs = future.result()
+                log_lines.extend(file_logs)
+                if report:
+                    analytics_data.append(report)
+    else:
+        for file_path in tqdm(input_files, desc="Processing", unit="file"):
+            report, file_logs = _process_file_task(
+                file_path,
+                mode_config,
+                args.output,
+                args.suffix,
+                args.mode,
+                dry_run,
+            )
+            log_lines.extend(file_logs)
+            if report:
                 analytics_data.append(report)
-                log_lines.append(
-                    f"  -> [DRY RUN] Would write to: {out_filename}"
-                )
-                log_lines.append(
-                    f"  -> Status: {report['status']}, Post LUFS: {report['post_lufs']}, Peak: {report['post_tp_db']} dBTP"
-                )
-            else:
-                seed = abs(hash(basename)) % (2**32)
-                write_wav_24bit_tpdf(out_path, processed, sr, seed)
-
-                fixed, before_tp, after_tp = enforce_tp_after_write(out_path, mode_config["TP_LIMIT"])
-                if fixed:
-                    log_lines.append(
-                        f"  -> [FIXED] Post-write peak was {before_tp:.2f} dBTP; corrected to {after_tp:.2f} dBTP."
-                    )
-                    report["status"] = "WARN (Peak Corrected)"
-                    report["post_tp_db"] = round(after_tp, 2)
-                else:
-                    report["post_tp_db"] = round(after_tp, 2)
-
-                analytics_data.append(report)
-                log_lines.append(
-                    f"  -> Status: {report['status']}, Post LUFS: {report['post_lufs']}, Final Peak: {report['post_tp_db']} dBTP"
-                )
-        except ValueError as exc:
-            log_lines.append(f"[SKIP] Skipped {basename}: {exc}")
-        except Exception as exc:  # pragma: no cover - defensive
-            log_lines.append(f"[ERROR] Failed to process {basename}: {exc}")
 
     if dry_run:
         if not analytics_data:
@@ -428,6 +481,13 @@ def main() -> None:
         "-r", "--recursive",
         action="store_true",
         help="Scan input directory recursively for audio files.",
+    )
+    parser.add_argument(
+        "-j", "--jobs",
+        type=int,
+        default=1,
+        metavar="N",
+        help="Number of parallel jobs for processing (default: 1).",
     )
 
     args = parser.parse_args()
