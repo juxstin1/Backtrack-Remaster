@@ -12,6 +12,7 @@ __version__ = "5.1.0"
 
 import argparse
 import datetime
+import json
 import logging
 import os
 from html import escape
@@ -347,8 +348,29 @@ def process_directory(args: argparse.Namespace) -> None:
         df = pd.DataFrame(analytics_data)
         csv_path = os.path.join(reports_dir, "qc_report.csv")
         html_path = os.path.join(reports_dir, "summary_report.html")
+        json_path = os.path.join(reports_dir, "qc_report.json")
+
         df.to_csv(csv_path, index=False)
         generate_html_report(df, html_path, mode_config["DESC"])
+
+        # Generate JSON report with metadata
+        json_report = {
+            "version": __version__,
+            "generated": datetime.datetime.now().isoformat(),
+            "mode": args.mode,
+            "mode_description": mode_config["DESC"],
+            "target_lufs": mode_config["TARGET_LKFS"],
+            "target_tp_limit": mode_config["TP_LIMIT"],
+            "summary": {
+                "total": len(df),
+                "passed": len(df[df["status"] == "PASS"]),
+                "warnings": len(df[df["status"].str.contains("WARN", na=False)]),
+                "failed": len(df[df["status"].str.contains("FAIL", na=False)]),
+            },
+            "files": analytics_data,
+        }
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(json_report, f, indent=2)
 
         print(
             f"\nBatch processing complete.\n"
