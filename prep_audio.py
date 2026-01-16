@@ -12,6 +12,7 @@ __version__ = "5.1.0"
 
 import argparse
 import datetime
+import logging
 import os
 from html import escape
 from typing import Dict, Iterable, List, Tuple
@@ -22,6 +23,26 @@ import pyloudnorm as pyln
 import soundfile as sf
 from scipy.signal import resample_poly
 from tqdm import tqdm
+
+# ---------------------------------------------------------------------------
+# Logging setup
+
+logger = logging.getLogger(__name__)
+
+
+def setup_logging(verbose: bool = False, quiet: bool = False) -> None:
+    """Configure logging based on verbosity flags."""
+    if quiet:
+        level = logging.WARNING
+    elif verbose:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+
+    logging.basicConfig(
+        level=level,
+        format="%(levelname)s: %(message)s",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -360,8 +381,19 @@ def main() -> None:
         action="store_true",
         help="Preview processing without writing files.",
     )
+    parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="Enable verbose output with debug information.",
+    )
+    parser.add_argument(
+        "-q", "--quiet",
+        action="store_true",
+        help="Suppress non-essential output.",
+    )
 
     args = parser.parse_args()
+    setup_logging(verbose=args.verbose, quiet=args.quiet)
 
     os.makedirs(args.input, exist_ok=True)
 
