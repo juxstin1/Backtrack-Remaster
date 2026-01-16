@@ -1,0 +1,95 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "backtrack-remaster"
+version = "5.1.0"
+description = "CLI tool for preparing audio files for broadcast with loudness normalization, true-peak limiting, and QC reports"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Justin", email = "juxstin1@users.noreply.github.com"}
+]
+keywords = [
+    "audio",
+    "broadcast",
+    "loudness",
+    "LUFS",
+    "true-peak",
+    "normalization",
+    "mastering",
+    "wav",
+    "aiff",
+    "dithering"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+    "Topic :: Multimedia :: Sound/Audio :: Conversion",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.20.0",
+    "pandas>=1.3.0",
+    "pyloudnorm>=0.1.0",
+    "scipy>=1.7.0",
+    "soundfile>=0.10.0",
+    "tqdm>=4.60.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+
+[project.scripts]
+backtrack = "prep_audio:main"
+
+[project.urls]
+Homepage = "https://github.com/juxstin1/Backtrack-Remaster"
+Repository = "https://github.com/juxstin1/Backtrack-Remaster.git"
+Issues = "https://github.com/juxstin1/Backtrack-Remaster/issues"
+Changelog = "https://github.com/juxstin1/Backtrack-Remaster/blob/main/CHANGELOG.md"
+
+[tool.setuptools]
+py-modules = ["prep_audio"]
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
