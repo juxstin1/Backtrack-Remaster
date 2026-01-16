@@ -227,9 +227,14 @@ def process_directory(args: argparse.Namespace) -> None:
     if not input_files:
         raise RuntimeError(f"No WAV or AIFF files found in '{args.input}'.")
 
-    os.makedirs(args.output, exist_ok=True)
-    reports_dir = os.path.join(args.output, "Reports")
-    os.makedirs(reports_dir, exist_ok=True)
+    dry_run = getattr(args, "dry_run", False)
+    if dry_run:
+        print("[DRY RUN] Preview mode - no files will be written.\n")
+        reports_dir = None
+    else:
+        os.makedirs(args.output, exist_ok=True)
+        reports_dir = os.path.join(args.output, "Reports")
+        os.makedirs(reports_dir, exist_ok=True)
 
     analytics_data: List[Dict[str, object]] = []
     log_lines = [
@@ -257,46 +262,67 @@ def process_directory(args: argparse.Namespace) -> None:
                 out_filename = f"prepped_{safe_base}{ext}"
 
             out_path = os.path.join(args.output, out_filename)
-            seed = abs(hash(basename)) % (2**32)
-            write_wav_24bit_tpdf(out_path, processed, sr, seed)
 
-            fixed, before_tp, after_tp = enforce_tp_after_write(out_path, mode_config["TP_LIMIT"])
-            if fixed:
+            if getattr(args, "dry_run", False):
+                # Dry run: show what would happen without writing
+                analytics_data.append(report)
                 log_lines.append(
-                    f"  -> [FIXED] Post-write peak was {before_tp:.2f} dBTP; corrected to {after_tp:.2f} dBTP."
+                    f"  -> [DRY RUN] Would write to: {out_filename}"
                 )
-                report["status"] = "WARN (Peak Corrected)"
-                report["post_tp_db"] = round(after_tp, 2)
+                log_lines.append(
+                    f"  -> Status: {report['status']}, Post LUFS: {report['post_lufs']}, Peak: {report['post_tp_db']} dBTP"
+                )
             else:
-                report["post_tp_db"] = round(after_tp, 2)
+                seed = abs(hash(basename)) % (2**32)
+                write_wav_24bit_tpdf(out_path, processed, sr, seed)
 
-            analytics_data.append(report)
-            log_lines.append(
-                f"  -> Status: {report['status']}, Post LUFS: {report['post_lufs']}, Final Peak: {report['post_tp_db']} dBTP"
-            )
+                fixed, before_tp, after_tp = enforce_tp_after_write(out_path, mode_config["TP_LIMIT"])
+                if fixed:
+                    log_lines.append(
+                        f"  -> [FIXED] Post-write peak was {before_tp:.2f} dBTP; corrected to {after_tp:.2f} dBTP."
+                    )
+                    report["status"] = "WARN (Peak Corrected)"
+                    report["post_tp_db"] = round(after_tp, 2)
+                else:
+                    report["post_tp_db"] = round(after_tp, 2)
+
+                analytics_data.append(report)
+                log_lines.append(
+                    f"  -> Status: {report['status']}, Post LUFS: {report['post_lufs']}, Final Peak: {report['post_tp_db']} dBTP"
+                )
         except ValueError as exc:
             log_lines.append(f"[SKIP] Skipped {basename}: {exc}")
         except Exception as exc:  # pragma: no cover - defensive
             log_lines.append(f"[ERROR] Failed to process {basename}: {exc}")
 
-    log_path = os.path.join(reports_dir, "processing_log.txt")
-    with open(log_path, "w", encoding="utf-8") as log_file:
-        log_file.write("\n".join(log_lines))
+    if dry_run:
+        if not analytics_data:
+            raise RuntimeError("No files would be processed.")
+        df = pd.DataFrame(analytics_data)
+        print(f"\n[DRY RUN] Summary:")
+        print(f"  Files to process: {len(df)}")
+        print(f"  Mode: {mode_config['DESC']}")
+        passed = len(df[df["status"] == "PASS"])
+        print(f"  Expected pass: {passed}/{len(df)}")
+    else:
+        log_path = os.path.join(reports_dir, "processing_log.txt")
+        with open(log_path, "w", encoding="utf-8") as log_file:
+            log_file.write("\n".join(log_lines))
 
-    if not analytics_data:
-        raise RuntimeError(f"No files were successfully processed. See log: {log_path}")
+        if not analytics_data:
+            raise RuntimeError(f"No files were successfully processed. See log: {log_path}")
 
-    df = pd.DataFrame(analytics_data)
-    csv_path = os.path.join(reports_dir, "qc_report.csv")
-    html_path = os.path.join(reports_dir, "summary_report.html")
-    df.to_csv(csv_path, index=False)
-    generate_html_report(df, html_path, mode_config["DESC"])
+        df = pd.DataFrame(analytics_data)
+        csv_path = os.path.join(reports_dir, "qc_report.csv")
+        html_path = os.path.join(reports_dir, "summary_report.html")
+        df.to_csv(csv_path, index=False)
+        generate_html_report(df, html_path, mode_config["DESC"])
 
-    print(
-        f"\nBatch processing complete.\n"
-        f"Processed files written to: {args.output}\n"
-        f"Reports available at: {reports_dir}"
-    )
+        print(
+            f"\nBatch processing complete.\n"
+            f"Processed files written to: {args.output}\n"
+            f"Reports available at: {reports_dir}"
+        )
 
 
 def main() -> None:
@@ -328,6 +354,11 @@ def main() -> None:
         "--suffix",
         action="store_true",
         help="Append descriptive suffixes to output filenames.",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Preview processing without writing files.",
     )
 
     args = parser.parse_args()
